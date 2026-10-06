@@ -1,0 +1,4 @@
+Your local screenshot shows a file named 'mp3_to_json'.
+Its source code was not supplied in the conversation files used for this package.
+Copy your original mp3_to_json.py into src/ before publishing if your workflow requires it.
+No replacement code has been invented.

@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+
+# Runtime/generated files
+prompt.txt
+response.txt
+embeddings.joblib
+
+# Large media
+videos/*
+audios/*
+!videos/.gitkeep
+!audios/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

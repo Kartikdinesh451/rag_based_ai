@@ -1,0 +1,2 @@
+The generated embeddings.joblib file is not included in this lightweight package.
+Run src/preprocess_json.py with Ollama/bge-m3 to generate it, or copy your existing local embeddings.joblib here.
