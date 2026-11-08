@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: vidyatrix-postgres
+    environment:
+      POSTGRES_DB: vidyatrix
+      POSTGRES_USER: vidyatrix
+      POSTGRES_PASSWORD: vidyatrix_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vidyatrix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: vidyatrix-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  auth-api:
+    build:
+      context: ./backend/auth-api
+      dockerfile: Dockerfile
+    container_name: vidyatrix-auth-api
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
+      - JWT_SECRET=dev-secret-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/shared:/app/shared
+
+  video-api:
+    build:
+      context: ./backend/video-api
+      dockerfile: Dockerfile
+    container_name: vidyatrix-video-api
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
+      - UPLOAD_DIR=/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/shared:/app/shared
+      - video_uploads:/app/uploads
+
+  chat-api:
+    build:
+      context: ./backend/chat-api
+      dockerfile: Dockerfile
+    container_name: vidyatrix-chat-api
+    ports:
+      - "8003:8000"
+    environment:
+      - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://host.docker.internal:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    volumes:
+      - ./backend/shared:/app/shared
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker:
+    build:
+      context: ./backend/worker
+      dockerfile: Dockerfile
+    container_name: vidyatrix-worker
+    environment:
+      - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - UPLOAD_DIR=/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    volumes:
+      - ./backend/shared:/app/shared
+      - video_uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vidyatrix-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-api
+      - video-api
+      - chat-api
+
+volumes:
+  postgres_data:
+  qdrant_data:
+  video_uploads:
