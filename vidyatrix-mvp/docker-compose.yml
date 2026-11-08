@@ -29,41 +29,40 @@ services:
 
   auth-api:
     build:
-      context: ./backend/auth-api
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: auth-api/Dockerfile
     container_name: vidyatrix-auth-api
     ports:
       - "8001:8000"
     environment:
       - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
       - JWT_SECRET=dev-secret-change-in-production
+      - PYTHONPATH=/app:/app/shared
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend/shared:/app/shared
 
   video-api:
     build:
-      context: ./backend/video-api
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: video-api/Dockerfile
     container_name: vidyatrix-video-api
     ports:
       - "8002:8000"
     environment:
       - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
       - UPLOAD_DIR=/app/uploads
+      - PYTHONPATH=/app:/app/shared
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend/shared:/app/shared
       - video_uploads:/app/uploads
 
   chat-api:
     build:
-      context: ./backend/chat-api
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: chat-api/Dockerfile
     container_name: vidyatrix-chat-api
     ports:
       - "8003:8000"
@@ -71,33 +70,32 @@ services:
       - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
       - QDRANT_URL=http://qdrant:6333
       - OLLAMA_URL=http://host.docker.internal:11434
+      - PYTHONPATH=/app:/app/shared
     depends_on:
       postgres:
         condition: service_healthy
       qdrant:
         condition: service_started
-    volumes:
-      - ./backend/shared:/app/shared
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   worker:
     build:
-      context: ./backend/worker
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: worker/Dockerfile
     container_name: vidyatrix-worker
     environment:
       - DATABASE_URL=postgresql://vidyatrix:vidyatrix_dev@postgres:5432/vidyatrix
       - QDRANT_URL=http://qdrant:6333
       - OLLAMA_URL=http://host.docker.internal:11434
       - UPLOAD_DIR=/app/uploads
+      - PYTHONPATH=/app:/app/shared
     depends_on:
       postgres:
         condition: service_healthy
       qdrant:
         condition: service_started
     volumes:
-      - ./backend/shared:/app/shared
       - video_uploads:/app/uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"

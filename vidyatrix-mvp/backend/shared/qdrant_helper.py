@@ -1,7 +1,7 @@
 import os
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
-from .config import QDRANT_URL
+from config import QDRANT_URL
 
 client = QdrantClient(url=QDRANT_URL)
 COLLECTION_NAME = "video_chunks"

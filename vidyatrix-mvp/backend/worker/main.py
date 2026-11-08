@@ -1,17 +1,15 @@
 import sys
 import os
 import time
-import whisper
+import uuid
+from faster_whisper import WhisperModel
 import subprocess
 from sqlalchemy.orm import Session
-
-# Add shared directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared'))
 
 from database import SessionLocal, Base, engine
 from models import Video, TranscriptChunk, VideoStatus
 from embeddings import create_embeddings_batch
-from qdrant_client import init_collection, upsert_chunks, delete_video_chunks
+from qdrant_helper import init_collection, upsert_chunks, delete_video_chunks
 from config import UPLOAD_DIR
 
 def extract_audio(video_path: str) -> str:
@@ -31,12 +29,26 @@ def extract_audio(video_path: str) -> str:
         raise
 
 def transcribe_audio(audio_path: str) -> dict:
-    """Transcribe audio using Whisper"""
+    """Transcribe audio using faster-whisper"""
     print("Loading Whisper model...")
-    model = whisper.load_model("base")  # Use base for speed
+    model = WhisperModel("base", device="cpu", compute_type="int8")
     print("Transcribing audio...")
-    result = model.transcribe(audio_path, word_timestamps=True)
-    print(f"Transcription complete. Duration: {result.get('duration', 0):.2f}s")
+    segments, info = model.transcribe(audio_path, word_timestamps=True)
+    
+    # Convert to format compatible with existing code
+    result = {
+        "duration": info.duration,
+        "segments": []
+    }
+    
+    for segment in segments:
+        result["segments"].append({
+            "start": segment.start,
+            "end": segment.end,
+            "text": segment.text
+        })
+    
+    print(f"Transcription complete. Duration: {info.duration:.2f}s")
     return result
 
 def chunk_transcript(result: dict, chunk_size: int = 30, overlap: int = 5):
@@ -101,7 +113,7 @@ def process_video(video_id: str):
         qdrant_chunks = []
         for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
             qdrant_chunks.append({
-                "id": f"{video_id}_{i}",
+                "id": str(uuid.uuid4()),  # Generate proper UUID for Qdrant
                 "user_id": video.user_id,
                 "video_id": str(video.id),
                 "start_time": chunk["start_time"],

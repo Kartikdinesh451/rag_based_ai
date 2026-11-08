@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from .database import Base
+from database import Base
 import uuid
 from datetime import datetime
 import enum
@@ -37,7 +37,7 @@ class Video(Base):
     filename = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
     duration = Column(Float, nullable=True)
-    status = Column(Enum(VideoStatus), default=VideoStatus.PENDING, nullable=False)
+    status = Column(Enum(VideoStatus, values_callable=lambda x: [e.value for e in x], name='videostatus'), default=VideoStatus.PENDING, nullable=False)
     error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -72,7 +72,7 @@ class ChatMessage(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False, index=True)
-    role = Column(Enum(MessageRole), nullable=False)
+    role = Column(Enum(MessageRole, values_callable=lambda x: [e.value for e in x], name='messagerole'), nullable=False)
     content = Column(Text, nullable=False)
     sources = Column(Text, nullable=True)  # JSON string
     created_at = Column(DateTime, default=datetime.utcnow)

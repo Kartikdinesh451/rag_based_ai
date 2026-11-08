@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
-COPY requirements.txt .
+COPY auth-api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared module
-COPY ../shared /app/shared
+COPY shared /app/shared
 
 # Copy application code
-COPY . .
+COPY auth-api/ .
 
 # Expose port
 EXPOSE 8000

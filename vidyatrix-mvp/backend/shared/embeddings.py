@@ -1,5 +1,5 @@
 import requests
-from .config import OLLAMA_URL
+from config import OLLAMA_URL
 
 def create_embedding(text: str) -> list:
     """Create embedding for a single text using BGE-M3 via Ollama"""

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { videoApi, Video } from '../lib/api'
-import { Upload, Video as VideoIcon, Trash2, MessageSquare } from 'lucide-react'
+import { Video as VideoIcon, Trash2, MessageSquare } from 'lucide-react'
 
 export default function Dashboard() {
   const navigate = useNavigate()

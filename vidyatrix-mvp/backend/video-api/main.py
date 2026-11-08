@@ -6,9 +6,6 @@ import os
 import uuid
 import shutil
 
-# Add shared directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared'))
-
 from database import get_db
 from models import User, Video, VideoStatus
 from schemas import VideoResponse

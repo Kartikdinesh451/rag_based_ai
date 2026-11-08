@@ -9,15 +9,18 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip
+RUN pip install --upgrade pip
+
 # Copy requirements and install
-COPY requirements.txt .
+COPY worker/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared module
-COPY ../shared /app/shared
+COPY shared /app/shared
 
 # Copy application code
-COPY . .
+COPY worker/ .
 
 # Create upload directory
 RUN mkdir -p /app/uploads

@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
-from .models import VideoStatus, MessageRole
+from models import VideoStatus, MessageRole
 
 # User Schemas
 class UserCreate(BaseModel):

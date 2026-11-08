@@ -102,7 +102,7 @@ export const videoApi = {
 }
 
 export const chatApi = {
-  send: async (message: string, token: string, videoId?: string, conversationId?: string): Promise<ChatMessage> => {
+  send: async (message: string, _token: string, videoId?: string, conversationId?: string): Promise<ChatMessage> => {
     const response = await fetch(`${CHAT_API}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

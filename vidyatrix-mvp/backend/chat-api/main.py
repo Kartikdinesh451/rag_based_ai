@@ -7,15 +7,12 @@ import json
 import requests
 from uuid import uuid4
 
-# Add shared directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared'))
-
 from database import get_db
 from models import User, Conversation, ChatMessage, MessageRole, Video
 from schemas import ChatRequest, ChatResponse, SourceCitation, ConversationResponse
 from security import decode_token
 from embeddings import create_embedding
-from qdrant_client import search
+from qdrant_helper import search
 from config import OLLAMA_URL
 
 app = FastAPI(title="Chat API")
@@ -137,13 +134,15 @@ def chat(request: ChatRequest, token: str, db: Session = Depends(get_db)):
         chunk_text = f"[Video: {video.title if video else 'Unknown'} @ {format_timestamp(payload['start_time'])}] {payload['text']}"
         context_chunks.append(chunk_text)
 
-        citations.append(SourceCitation(
-            video_id=payload["video_id"],
-            video_title=video.title if video else "Unknown",
-            start_time=payload["start_time"],
-            end_time=payload["end_time"],
-            text=payload["text"]
-        ))
+        # Create citation object
+        citation_data = {
+            "video_id": payload["video_id"],
+            "video_title": video.title if video else "Unknown",
+            "start_time": payload["start_time"],
+            "end_time": payload["end_time"],
+            "text": payload["text"]
+        }
+        citations.append(SourceCitation(**citation_data))
 
     # Construct prompt
     context = "\n".join(context_chunks)

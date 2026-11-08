@@ -4,9 +4,6 @@ from sqlalchemy.orm import Session
 import sys
 import os
 
-# Add shared directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared'))
-
 from database import get_db
 from models import User
 from schemas import UserCreate, UserLogin, UserResponse, TokenResponse

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { chatApi, videoApi, ChatMessage, Video, Conversation } from '../lib/api'
+import { chatApi, videoApi } from '../lib/api'
 import { Send, ArrowLeft, FileText } from 'lucide-react'
 import { formatTimestamp } from '../lib/utils'
 
