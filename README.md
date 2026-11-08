@@ -1,231 +1,134 @@
-# 🎓 RAG-Based AI Teaching Assistant
+# Vidyatrix – AI-Powered Multimodal Learning Assistant
 
-A Retrieval-Augmented Generation (RAG) teaching assistant that answers questions from course-video content and guides the learner to the relevant video and timestamp.
+> **RAG-based question answering, document intelligence, video understanding and personalized learning tools.**
 
-> **Code-preservation rule:** the supplied project code has been copied without changing its logic. This package adds GitHub organization, documentation, screenshots and placeholders only.
+---
 
-## 🚀 Project overview
+## 🚀 Quick Start
 
-**Video → MP3 → Whisper transcription → timestamped JSON → embeddings → semantic retrieval → LLM response**
+The main Vidyatrix AI SaaS application is located in the `vidyatrix-mvp/` directory.
 
-### Technologies used
-- **Whisper `large-v2`** — speech-to-text
-- **Ollama `bge-m3`** — embeddings
-- **Cosine similarity** — semantic retrieval
-- **Ollama `deepseek-r1:1.5b`** — response generation
-- **Pandas / NumPy / Joblib / Requests / scikit-learn**
+### Vidyatrix MVP (Current Production)
 
-The supplied retrieval script selects the **top 5** most similar transcript chunks and sends their title, video number, timestamps and text to the LLM.
-
-## 🧠 Architecture
-
-```text
-Course Videos
-      │
-      ▼
-video_to_mp3.py
-      │
-      ▼
-MP3 Audio
-      │
-      ▼
-speech_to_text.py / mp3_to_json.py
-      │
-      ▼
-Timestamped JSON Chunks
-      │
-      ▼
-preprocess_json.py
-      │
-      ▼
-bge-m3 Embeddings
-      │
-      ▼
-embeddings.joblib
-      │
-      ▼
-process_incoming.py
-      │
-      ├── User question
-      ├── bge-m3 question embedding
-      ├── Cosine similarity
-      └── Top 5 transcript chunks
-              │
-              ▼
-       DeepSeek R1 1.5B
-              │
-              ▼
-   Answer + video/timestamp guidance
+```bash
+cd vidyatrix-mvp
+docker-compose up -d
 ```
 
-## 📁 Repository structure
+Access the application at http://localhost:3000
 
-The root runtime folders intentionally match the paths hard-coded in the original scripts:
+**See [vidyatrix-mvp/README.md](vidyatrix-mvp/README.md) for complete documentation.**
 
-```text
-RAG_Based_AI/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── LICENSE
-├── embeddings.joblib.placeholder
+---
+
+## 📁 Repository Structure
+
+```
+rag_based_ai/
+├── vidyatrix-mvp/          # Main Vidyatrix AI SaaS application
+│   ├── backend/            # Microservices (Auth, Video, Chat, Worker)
+│   ├── frontend/           # React TypeScript application
+│   ├── docker-compose.yml  # Docker orchestration
+│   └── README.md           # Complete documentation
 │
-├── videos/                  # Add large source videos locally
-├── audios/                  # Add generated MP3s locally
-├── jsons/                   # Timestamped transcript JSON
-│   ├── 2_Your First HTML Website.json
-│   ├── 6_SEO and Core Web Vitals in HTML.json
-│   └── 10_Video, Audio & Media in HTML.json
-│
-├── src/
-│   ├── video_to_mp3.py
-│   ├── speech_to_text.py
-│   ├── preprocess_json.py
-│   ├── process_incoming.py
-│   └── ADD_mp3_to_json.py.txt
-│
-├── outputs/
-│   ├── output.json
-│   ├── prompt.txt
-│   └── response.txt
-│
-├── assets/
-│   └── project_screenshot_*.png
-│
-├── docs/
-│   ├── PROJECT_NOTES.md
-│   ├── GITHUB_CHECKLIST.md
-│   └── ORIGINAL_README.md
-│
-└── tests/
+├── src/                    # Original RAG scripts (legacy)
+├── videos/                 # Video storage (legacy)
+├── audios/                 # Audio storage (legacy)
+├── jsons/                  # Transcript JSONs (legacy)
+└── docs/                   # Legacy documentation
 ```
 
-## ⚙️ Setup
+---
 
-### Python packages
+## 🎯 Vidyatrix MVP Overview
+
+Vidyatrix is a modern, microservices-based AI learning assistant that transforms educational videos into interactive learning experiences.
+
+### Key Features
+- ✅ Video upload and management
+- ✅ AI transcription with faster-whisper
+- ✅ Semantic search with BGE-M3 embeddings
+- ✅ RAG chat with DeepSeek-R1
+- ✅ Timestamped answers with citations
+- ✅ User authentication and data isolation
+- ✅ Docker-based deployment
+
+### Technology Stack
+- **Backend**: FastAPI, PostgreSQL, Qdrant
+- **AI**: faster-whisper, BGE-M3, DeepSeek-R1 (via Ollama)
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **Infrastructure**: Docker, Docker Compose
+
+**Full documentation:** [vidyatrix-mvp/README.md](vidyatrix-mvp/README.md)
+
+---
+
+## 📚 Legacy RAG Scripts
+
+The `src/` directory contains the original RAG-based teaching assistant scripts that demonstrate the core concepts:
+
+- `video_to_mp3.py` - Video to audio conversion
+- `speech_to_text.py` - Whisper transcription
+- `preprocess_json.py` - Embedding generation
+- `process_incoming.py` - RAG query processing
+
+**Note:** These scripts are preserved for reference but are superseded by the Vidyatrix MVP implementation.
+
+---
+
+## 🛠 Installation
+
+### Prerequisites
+- Docker Desktop
+- Ollama with models: `bge-m3`, `deepseek-r1:1.5b`
+
+### Vidyatrix MVP Setup
+
+```bash
+cd vidyatrix-mvp
+docker-compose up -d
+docker-compose exec auth-api python -c "
+import sys
+sys.path.insert(0, '/app/shared')
+from alembic.config import Config
+from alembic import command
+command.upgrade(Config('/app/shared/alembic.ini'), 'head')
+"
+```
+
+**Access:** http://localhost:3000
+
+### Legacy Scripts Setup
 
 ```bash
 pip install -r requirements.txt
-```
-
-### External dependencies
-
-Install **FFmpeg** for video-to-MP3 conversion.
-
-Install and run **Ollama** locally. The supplied code calls:
-
-```text
-http://localhost:11434
-```
-
-Required models:
-
-```bash
 ollama pull bge-m3
 ollama pull deepseek-r1:1.5b
 ```
 
-## ▶️ Run the pipeline
+---
 
-### 1. Add videos
+## 📖 Documentation
 
-Put your course videos in:
+- **Vidyatrix MVP**: [vidyatrix-mvp/README.md](vidyatrix-mvp/README.md)
+- **API Documentation**: [vidyatrix-mvp/docs/API.md](vidyatrix-mvp/docs/API.md)
+- **Architecture**: [vidyatrix-mvp/docs/ARCHITECTURE.md](vidyatrix-mvp/docs/ARCHITECTURE.md)
+- **Setup Guide**: [vidyatrix-mvp/SETUP_GUIDE.md](vidyatrix-mvp/SETUP_GUIDE.md)
 
-```text
-videos/
-```
+---
 
-### 2. Convert videos to MP3
+## 🤝 Contributing
 
-```bash
-python src/video_to_mp3.py
-```
+Contributions are welcome! Please see [vidyatrix-mvp/README.md](vidyatrix-mvp/README.md) for contribution guidelines.
 
-The original script reads `videos/` and writes MP3 files into `audios/`.
+---
 
-### 3. Convert MP3 to JSON
+## 📄 License
 
-Your screenshot shows the original `mp3_to_json.py` in the local project. Its source was not included in the uploaded files for this packaging step, so it has **not** been recreated or modified.
+MIT License
 
-Copy your original file to:
+---
 
-```text
-src/mp3_to_json.py
-```
-
-Then use your original workflow to populate:
-
-```text
-jsons/
-```
-
-### 4. Create embeddings
-
-```bash
-python src/preprocess_json.py
-```
-
-The supplied script calls Ollama's `bge-m3` embedding endpoint and saves the dataframe as:
-
-```text
-embeddings.joblib
-```
-
-### 5. Ask a question
-
-Once `embeddings.joblib` is available:
-
-```bash
-python src/process_incoming.py
-```
-
-Enter your question at:
-
-```text
-Ask a Question:
-```
-
-The supplied code retrieves the most similar transcript chunks and asks the LLM to answer with the relevant video and timestamp.
-
-## 🔎 Example
-
-```text
-Where is responsive design taught?
-```
-
-The retrieval stage searches the transcript embeddings and passes the most relevant timestamped chunks to the LLM.
-
-## ⚠️ Important source-code behavior retained
-
-I did **not** change this because you specifically asked not to modify the code.
-
-The supplied `preprocess_json.py` contains a `break` after the first JSON file is processed. Therefore, **as currently written, it stops after the first JSON file** instead of processing every JSON file in `jsons/`.
-
-This is documented rather than silently changed.
-
-The original scripts also use fixed relative paths:
-
-```text
-videos/
-audios/
-jsons/
-embeddings.joblib
-```
-
-The package keeps those exact runtime folder names so the surrounding structure matches the supplied code.
-
-## 📦 GitHub storage recommendation
-
-Do not upload large course videos and MP3 files into normal Git history.
-
-Recommended:
-- Keep Python source code and small JSON samples in GitHub.
-- Keep large `.mp4`, `.webm` and `.mp3` files local or use Git LFS/external storage.
-- Add your generated `embeddings.joblib` only if you intentionally want that artifact public.
-
-## 📌 Portfolio title
-
-**RAG-Based AI Teaching Assistant | Python, Whisper, Ollama, BGE-M3, DeepSeek-R1**
-
-This project demonstrates an end-to-end RAG workflow:
-**transcription → embeddings → retrieval → prompt construction → local LLM inference → timestamp-aware answer generation.**
+**Project**: Vidyatrix – AI-Powered Multimodal Learning Assistant  
+**Status**: Production MVP (Video-Only)  
+**Repository**: https://github.com/Kartikdinesh451/rag_based_ai
